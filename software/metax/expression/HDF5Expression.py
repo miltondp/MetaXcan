@@ -13,7 +13,7 @@ class ExpressionManager(object):
 
     def expression_for_gene(self, gene):
         m_ = self.gene_map[gene]
-        k = {model:self.h5[model]['pred_expr'][m_[model]] for model in sorted(m_.keys())}
+        k = {model:self.h5[model][m_[model]] for model in sorted(m_.keys())}
         if self.code_999:
             k = _code_999(k)
         return k
@@ -33,7 +33,7 @@ def _structure(folder):
         else:
             continue
         path = os.path.join(folder, file)
-        file = h5py_cache.File(path, 'r', chunk_cache_mem_size=HDF5_CACHE)
+        file = h5py_cache.File(path, 'r', chunk_cache_mem_size=HDF5_CACHE, dtype='float32')
 
         genes = [g for g in file['genes']]
         for i,gene in enumerate(genes):
@@ -41,13 +41,13 @@ def _structure(folder):
                 gene_map[gene] = {}
             gene_map[gene][name] = i
 
-        h5[name] = file
+        h5[name] = file['pred_expr']
 
     return gene_map, h5
 
 def _close(h5):
     for name, h_ in h5.iteritems():
-        h_.close()
+        h_.file.close()
 
 def _code_999(k):
     logged_ = []
