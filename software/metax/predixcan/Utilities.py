@@ -19,7 +19,8 @@ class HDF5Context(Context):
 
     def __enter__(self):
         logging.info("Acquiring HDF5 expression caches")
-        gene_map, h5 = HDF5Expression._structure(self.args.hdf5_expression_folder)
+        gene_map, h5, genes_order = HDF5Expression._structure(self.args.hdf5_expression_folder, self.args.hdf5_expression_file)
+        self.genes_order = genes_order
         self.h5 = h5
         self.expression = HDF5Expression.ExpressionManager(gene_map, h5)
 
@@ -44,7 +45,7 @@ class HDF5Context(Context):
         HDF5Expression._close(self.h5)
 
     def get_genes(self):
-        return self.expression.gene_map.keys()
+        return self.genes_order
 
     def expression_for_gene(self, gene):
         return self.expression.expression_for_gene(gene)
